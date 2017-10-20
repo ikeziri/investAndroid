@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:layout_gravity="center_horizontal"
+    >
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="20dp"
+        android:id="@+id/nome"
+        android:layout_column="0"
+        android:layout_row="0"
+
+        />
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="20dp"
+        android:id="@+id/quantidade"
+        android:layout_column="1"
+        android:layout_row="0"
+        android:textAlignment="viewEnd"
+        />
+
+    <TextView
+        android:layout_width="60dp"
+        android:layout_height="20dp"
+        android:id="@+id/valor"
+        android:layout_column="2"
+        android:layout_row="0"
+        android:textAlignment="viewEnd"
+        />
+
+    <TextView
+       android:layout_width="60dp"
+        android:layout_height="20dp"
+        android:id="@+id/valorAtual"
+        android:layout_column="3"
+        android:layout_row="0"
+        android:textAlignment="viewEnd"
+        />
+    <TextView
+       android:layout_width="50dp"
+        android:layout_height="20dp"
+        android:id="@+id/percentualDia"
+        android:layout_column="5"
+        android:layout_row="0"
+        android:textAlignment="viewEnd"
+        />
+    <TextView
+       android:layout_width="50dp"
+        android:layout_height="20dp"
+        android:id="@+id/percentualTotal"
+        android:layout_column="6"
+        android:layout_row="0"
+        android:textAlignment="viewEnd"
+        />
+</GridLayout>
