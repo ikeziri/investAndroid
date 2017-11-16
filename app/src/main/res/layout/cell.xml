@@ -16,7 +16,7 @@
         />
 
     <TextView
-        android:layout_width="50dp"
+        android:layout_width="40dp"
         android:layout_height="20dp"
         android:id="@+id/quantidade"
         android:layout_column="1"
@@ -25,7 +25,7 @@
         />
 
     <TextView
-        android:layout_width="60dp"
+        android:layout_width="50dp"
         android:layout_height="20dp"
         android:id="@+id/valor"
         android:layout_column="2"
@@ -34,10 +34,18 @@
         />
 
     <TextView
-       android:layout_width="60dp"
+       android:layout_width="50dp"
         android:layout_height="20dp"
         android:id="@+id/valorAtual"
         android:layout_column="3"
+        android:layout_row="0"
+        android:textAlignment="viewEnd"
+        />
+    <TextView
+       android:layout_width="60dp"
+        android:layout_height="20dp"
+        android:id="@+id/valorTotal"
+        android:layout_column="4"
         android:layout_row="0"
         android:textAlignment="viewEnd"
         />

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="10dp"
     tools:context="com.example.ikezi.test2.MainActivity">
 
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -12,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:columnCount="7"
-    >
+        android:id="@+id/gridLayout">
 
         <TextView
             android:layout_width="50dp"
@@ -23,7 +22,7 @@
             android:text="Ação" />
 
         <TextView
-            android:layout_width="50dp"
+            android:layout_width="40dp"
             android:layout_height="50dp"
             android:layout_column="1"
             android:layout_row="0"
@@ -31,7 +30,7 @@
             android:text="Qtd" />
 
         <TextView
-            android:layout_width="60dp"
+            android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_column="2"
             android:layout_row="0"
@@ -39,12 +38,20 @@
             android:text="P.M." />
 
         <TextView
-            android:layout_width="60dp"
+            android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_column="3"
             android:layout_row="0"
             android:textAlignment="center"
             android:text="Valor Atual" />
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="50dp"
+            android:layout_column="4"
+            android:layout_row="0"
+            android:textAlignment="center"
+            android:text="Valor Total" />
 
         <TextView
             android:layout_width="50dp"
@@ -67,6 +74,13 @@
         android:id="@+id/list"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="45dp"/>
+        android:layout_below="@+id/gridLayout"/>
 
-</android.support.constraint.ConstraintLayout>
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/chart1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/list"
+        />
+
+</RelativeLayout >

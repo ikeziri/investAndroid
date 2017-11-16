@@ -14,6 +14,10 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Currency;
+import java.util.Locale;
 
 public class ListAdapter extends BaseAdapter {
 
@@ -47,6 +51,7 @@ public class ListAdapter extends BaseAdapter {
         TextView valorAtual;
         TextView percentualDia;
         TextView percentualTotal;
+        TextView valorTotal;
 
     }
 
@@ -60,7 +65,7 @@ public class ListAdapter extends BaseAdapter {
             holder.nome = (TextView) convertView.findViewById(R.id.nome);
             holder.quantidade = (TextView) convertView.findViewById(R.id.quantidade);
             holder.valor = (TextView) convertView.findViewById(R.id.valor);
-//            holder.valorAbertura = (TextView) convertView.findViewById(R.id.valorAbertura);
+            holder.valorTotal = (TextView) convertView.findViewById(R.id.valorTotal);
             holder.valorAtual = (TextView) convertView.findViewById(R.id.valorAtual);
             holder.percentualDia = (TextView) convertView.findViewById(R.id.percentualDia);
             holder.percentualTotal = (TextView) convertView.findViewById(R.id.percentualTotal);
@@ -71,15 +76,17 @@ public class ListAdapter extends BaseAdapter {
         {
             holder = (ViewHolderItem) convertView.getTag();
         }
-
+        DecimalFormat df = new DecimalFormat("#,###", new DecimalFormatSymbols(Locale.GERMAN));
+        DecimalFormat dfd = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(Locale.GERMAN));
 
         holder.nome.setText(this.main.acoes.get(position).getNome());
         holder.quantidade.setText(this.main.acoes.get(position).getQuantidade().toString());
-        holder.valor.setText(this.main.acoes.get(position).getValor().toString());
-//        holder.valorAbertura.setText(this.main.acoes.get(position).getValorAbertura().toString());
-        holder.valorAtual.setText(this.main.acoes.get(position).getValorAtual().toString());
-        holder.percentualDia.setText(this.main.acoes.get(position).getPercentualDia().toString());
-        holder.percentualTotal.setText(this.main.acoes.get(position).getPercentualTotal().toString());
+        holder.valor.setText(dfd.format(this.main.acoes.get(position).getValor()));
+        BigDecimal valorTotal = this.main.acoes.get(position).getValorAtual().multiply(new BigDecimal(this.main.acoes.get(position).getQuantidade()));
+        holder.valorTotal.setText(df.format(valorTotal));
+        holder.valorAtual.setText(dfd.format(this.main.acoes.get(position).getValorAtual()));
+        holder.percentualDia.setText(dfd.format(this.main.acoes.get(position).getPercentualDia()));
+        holder.percentualTotal.setText(dfd.format(this.main.acoes.get(position).getPercentualTotal()));
 
         if(this.main.acoes.get(position).getPercentualDia().compareTo(BigDecimal.ZERO)>0){
             holder.percentualDia.setTextColor(ColorStateList.valueOf(Color.rgb(0 , 100 , 0)));
