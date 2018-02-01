@@ -179,18 +179,21 @@ public class MainActivity extends Activity implements Download_data.download_com
             String forecastJsonStr = null;
 
             try {
+
+                String link = "";
+                if(Links.ListarAtivos.getValor().equals(acao)){
+                    link = (acao);
+                }else if (Links.ConsultarAtivo.getValor().equals(acao)){
+                    link = (acao+params[1]);
+                }else if (Links.ConsultarAtivoUol.getValor().equals(acao)){
+                    link = (acao+params[1]+".SA");
+                }
+
+//                Log.i("link", link);
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = null;
-
-
-                if(Links.ListarAtivos.getValor().equals(acao)){
-                    url = new URL(acao);
-                }else if (Links.ConsultarAtivo.getValor().equals(acao)){
-                    url = new URL(acao+params[1]);
-                }
-
+                URL url = new URL(link);
 
 
 
@@ -249,6 +252,8 @@ public class MainActivity extends Activity implements Download_data.download_com
                 get_data(s);
             }else if (Links.ConsultarAtivo.getValor().equals(acao)){
                 atualizaAtivo(s);
+            }else if (Links.ConsultarAtivoUol.getValor().equals(acao)){
+                atualizaAtivoUol(s);
             }
 
         }
@@ -286,9 +291,43 @@ public class MainActivity extends Activity implements Download_data.download_com
             adapter.notifyDataSetChanged();
         }
     }
+    private void atualizaAtivoUol(String jsonData) {
+        quantidadeResolvida++;
+
+        JSONObject obj = null;
+        BigDecimal valorDiferenca = BigDecimal.ZERO, valorAtual = BigDecimal.ZERO;
+        String nomeAcao = "";
+        try {
+            obj=new JSONObject(jsonData);
+            valorDiferenca = new BigDecimal(obj.getString("change").replace(',', '.'));
+            valorAtual = new BigDecimal(obj.getString("price").replace(',', '.'));
+            nomeAcao = obj.getString("code").substring(0 , 5);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+//        Log.i("jsonData", jsonData);
+//        Log.i("acao",nomeAcao + ": " + valorAtual.toString() + " - " + valorDiferenca.toString());
+        for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext();) {
+            Acao acao = (Acao) iterator.next();
+            if(nomeAcao.equals(acao.getNome())){
+                Acao temp = new Acao(nomeAcao , acao.getQuantidade(), acao.getValor(), valorAtual , valorAtual.subtract(valorDiferenca) );
+                acao.setValorAbertura(temp.getValorAbertura());
+                acao.setValorAtual(temp.getValorAtual());
+                acao.setPercentualDia(temp.getPercentualDia());
+                acao.setPercentualTotal(temp.getPercentualTotal());
+//                Log.i("acaoPos", acao.toString());
+            }
+        }
+
+        if(quantidadeRequisicao == quantidadeResolvida){
+            grafico();
+            adapter.notifyDataSetChanged();
+        }
+    }
 
     private static enum Links {
         ListarAtivos("http://invest-182620.appspot.com/rest/investimentoResource/listarAcoesConsolidada"),
+        ConsultarAtivoUol("http://cotacoes.economia.uol.com.br/snapQuote.html?code="),
         ConsultarAtivo("https://finance.google.com/finance?output=json&q=BVMF:");
 
         private final String valor;
