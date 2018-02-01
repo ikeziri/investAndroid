@@ -34,9 +34,9 @@ public class Acao {
         super();
         this.nome = nome;
         this.quantidade = quantidade;
-        this.valor = valor.setScale(2, BigDecimal.ROUND_HALF_EVEN);;
-        this.valorAtual = valorAtual.setScale(2, BigDecimal.ROUND_HALF_EVEN);;
-        this.valorAbertura = valorAbertura.setScale(2, BigDecimal.ROUND_HALF_EVEN);;
+        this.valor = valor.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+        this.valorAtual = valorAtual.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+        this.valorAbertura = valorAbertura.setScale(2, BigDecimal.ROUND_HALF_EVEN);
         try {
             this.percentualDia = this.valorAtual.multiply(CEM).divide(this.valorAbertura, 2, BigDecimal.ROUND_HALF_EVEN).subtract(CEM).setScale(2, BigDecimal.ROUND_HALF_EVEN);
         }catch (  Exception d){
@@ -48,6 +48,12 @@ public class Acao {
         }catch (  Exception d){
             this.percentualTotal = BigDecimal.ZERO;
         }
+    }
+    public Acao(String nome, Integer quantidade, BigDecimal valor) {
+        super();
+        this.nome = nome;
+        this.quantidade = quantidade;
+        this.valor = valor.setScale(2, BigDecimal.ROUND_HALF_EVEN);
     }
 
 	public Acao() {
@@ -94,11 +100,6 @@ public class Acao {
 		this.custo = custo;
 	}
 
-	@Override
-	public String toString() {
-		return "Acao [nome=" + nome + ", data=" + data + ", quantidade=" + quantidade + ", valor=" + valor + ", custo="
-				+ custo + "]";
-	}
 
 	public BigDecimal getValorAtual() {
 		return valorAtual;
@@ -130,5 +131,20 @@ public class Acao {
 
 	public BigDecimal getPercentualTotal() {
 		return percentualTotal;
+	}
+
+	@Override
+	public String toString() {
+		return "Acao{" +
+				"nome='" + nome + '\'' +
+				", data='" + data + '\'' +
+				", quantidade=" + quantidade +
+				", valor=" + valor +
+				", custo=" + custo +
+				", valorAtual=" + valorAtual +
+				", valorAbertura=" + valorAbertura +
+				", percentualDia=" + percentualDia +
+				", percentualTotal=" + percentualTotal +
+				'}';
 	}
 }
