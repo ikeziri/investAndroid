@@ -135,25 +135,12 @@ public class MainActivity extends Activity implements Download_data.download_com
             {
                 JSONObject obj=new JSONObject(data_array.get(i).toString());
 
-                BigDecimal valorAbertura, valorAtual;
-                if(obj.getString("valorAbertura").equals("null")){
-                    valorAbertura = (BigDecimal.ZERO);
-                }else{
-                    valorAbertura = new BigDecimal((obj.getString("valorAbertura")));
-                }
-
-                if(obj.getString("valorAtual").equals("null")){
-                    valorAtual = (BigDecimal.ZERO);
-                }else{
-                    valorAtual =( new BigDecimal((obj.getDouble("valorAtual"))));
-                }
-
-                Acao acao=new Acao(obj.getString("nome") , obj.getInt("quantidade"), new BigDecimal(obj.getString("valor")) );
-
-                quantidadeRequisicao++;
-                new FetchData().execute(Links.ConsultarAtivo.getValor(),acao.getNome());
-
-                acoes.add(acao);
+                Acao acao=new Acao(obj.getString("nome") , obj.getString("data") , obj.getInt("quantidade"), new BigDecimal(obj.getString("valor")) , new BigDecimal(obj.getString("custo")) );
+                acao.setValor(
+                        acao.getValor().multiply(new BigDecimal(acao.getQuantidade())).add(acao.getCusto())
+                                .divide(new BigDecimal(acao.getQuantidade()) , 2, BigDecimal.ROUND_HALF_EVEN));
+                Log.i("acao", acao.toString());
+                adicionaAcao(acao);
 
             }
 
@@ -164,6 +151,43 @@ public class MainActivity extends Activity implements Download_data.download_com
         }
 
     }
+
+    private void adicionaAcao(Acao novaAcao) {
+        boolean flag = false;
+        for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext();) {
+            Acao acao = (Acao) iterator.next();
+            if(novaAcao.getNome().equals(acao.getNome())){
+                flag = true;
+                if (acao.getQuantidade() + novaAcao.getQuantidade() == 0){
+                    acoes.remove(acao);
+                }else{
+//                    somente atualiza valor PM se foi compra
+                    if (novaAcao.getQuantidade() > 0){
+                        final BigDecimal valorAcao = acao.getValor().multiply(new BigDecimal(acao.getQuantidade()));
+                        final BigDecimal valorAcaoNova = novaAcao.getValor().multiply(new BigDecimal(novaAcao.getQuantidade())).add(novaAcao.getCusto());
+                        final Integer quantidadeNova = acao.getQuantidade() + novaAcao.getQuantidade();
+                        acao.setValor(
+                                valorAcao
+                                        .add(valorAcaoNova)
+                                        .divide(new BigDecimal(quantidadeNova) , 2, BigDecimal.ROUND_HALF_EVEN));
+                    }
+                    acao.setQuantidade(acao.getQuantidade() + novaAcao.getQuantidade());
+                    acao.setCusto(acao.getCusto().add(novaAcao.getCusto()));
+                }
+            }
+        }
+
+        if (!flag) {
+            quantidadeRequisicao++;
+            new FetchData().execute(Links.ConsultarAtivoUol.getValor(),novaAcao.getNome());/**/
+//            new FetchData().execute(Links.ConsultarAtivo.getValor(),novaAcao.getNome());
+
+            acoes.add(novaAcao);
+
+        }
+
+    }
+
     private class FetchData extends AsyncTask<String, Void, String> {
 
         private String acao = new String();
@@ -189,7 +213,7 @@ public class MainActivity extends Activity implements Download_data.download_com
                     link = (acao+params[1]+".SA");
                 }
 
-//                Log.i("link", link);
+                Log.i("link", link);
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
@@ -247,7 +271,7 @@ public class MainActivity extends Activity implements Download_data.download_com
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-//            Log.i("json", s);
+            Log.i("json", s);
             if(Links.ListarAtivos.getValor().equals(acao)){
                 get_data(s);
             }else if (Links.ConsultarAtivo.getValor().equals(acao)){
@@ -305,7 +329,7 @@ public class MainActivity extends Activity implements Download_data.download_com
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        Log.i("jsonData", jsonData);
+        Log.i("jsonData", jsonData);
 //        Log.i("acao",nomeAcao + ": " + valorAtual.toString() + " - " + valorDiferenca.toString());
         for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext();) {
             Acao acao = (Acao) iterator.next();
@@ -326,7 +350,8 @@ public class MainActivity extends Activity implements Download_data.download_com
     }
 
     private static enum Links {
-        ListarAtivos("http://invest-182620.appspot.com/rest/investimentoResource/listarAcoesConsolidada"),
+//        ListarAtivos("http://invest-182620.appspot.com/rest/investimentoResource/listarAcoesConsolidada"),
+        ListarAtivos("https://api.mlab.com/api/1/databases/invest/collections/acoes?apiKey=Wtax8CjOW6j5Bo5kBVTirXR4a4qxLDFh&s={\"nome\":%201,%20\"data\":%201}"),
         ConsultarAtivoUol("http://cotacoes.economia.uol.com.br/snapQuote.html?code="),
         ConsultarAtivo("https://finance.google.com/finance?output=json&q=BVMF:");
 

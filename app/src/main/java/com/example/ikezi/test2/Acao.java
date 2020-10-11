@@ -26,8 +26,9 @@ public class Acao {
 			this.data = data;
 		}
 		this.quantidade = quantidade;
-		this.valor = valor;
-		this.custo = custo;
+		this.valor = valor.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+		this.custo = custo.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+
 	}
 
     public Acao(String nome, Integer quantidade, BigDecimal valor, BigDecimal valorAtual, BigDecimal valorAbertura) {
