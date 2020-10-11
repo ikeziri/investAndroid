@@ -78,7 +78,7 @@ public class Acao {
 	}
 
 	public Integer getQuantidade() {
-		return quantidade;
+		if (quantidade == null) return 0; return quantidade;
 	}
 
 	public void setQuantidade(Integer quantidade) {
@@ -86,7 +86,7 @@ public class Acao {
 	}
 
 	public BigDecimal getValor() {
-		return valor;
+		if (valor == null) return BigDecimal.ZERO; return valor;
 	}
 
 	public void setValor(BigDecimal valor) {
@@ -94,6 +94,7 @@ public class Acao {
 	}
 
 	public BigDecimal getCusto() {
+		if (custo == null) return BigDecimal.ZERO;
 		return custo;
 	}
 
@@ -103,6 +104,7 @@ public class Acao {
 
 
 	public BigDecimal getValorAtual() {
+		if (valorAtual == null) return BigDecimal.ZERO;
 		return valorAtual;
 	}
 
@@ -111,6 +113,7 @@ public class Acao {
 	}
 
 	public BigDecimal getValorAbertura() {
+		if (valorAbertura == null) return BigDecimal.ZERO;
 		return valorAbertura;
 	}
 
@@ -127,11 +130,11 @@ public class Acao {
 	}
 
 	public BigDecimal getPercentualDia() {
-		return percentualDia;
+		if (percentualDia == null) return BigDecimal.ZERO; return percentualDia;
 	}
 
 	public BigDecimal getPercentualTotal() {
-		return percentualTotal;
+		if (percentualTotal == null) return BigDecimal.ZERO; return percentualTotal;
 	}
 
 	@Override

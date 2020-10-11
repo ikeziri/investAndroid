@@ -74,6 +74,9 @@ public class MainActivity extends Activity implements Download_data.download_com
         BigDecimal total = BigDecimal.ZERO;
         for (Acao acao: acoes){
 //            Log.i("graficoAcao",acao.toString());
+            if(acao.getValorAtual() == null){
+                acao.setValorAtual(BigDecimal.ZERO);
+            }
             entries.add(new PieEntry(acao.getValorAtual().floatValue() * acao.getQuantidade(), acao.getNome()));
             total = total.add(acao.getValorAtual().multiply(new BigDecimal(acao.getQuantidade())));
         }
@@ -141,6 +144,7 @@ public class MainActivity extends Activity implements Download_data.download_com
                                 .divide(new BigDecimal(acao.getQuantidade()) , 2, BigDecimal.ROUND_HALF_EVEN));
                 Log.i("acao", acao.toString());
                 adicionaAcao(acao);
+                //break;
 
             }
 
@@ -179,8 +183,10 @@ public class MainActivity extends Activity implements Download_data.download_com
 
         if (!flag) {
             quantidadeRequisicao++;
-            new FetchData().execute(Links.ConsultarAtivoUol.getValor(),novaAcao.getNome());/**/
-//            new FetchData().execute(Links.ConsultarAtivo.getValor(),novaAcao.getNome());
+ //           new FetchData().execute(Links.ConsultarAtivoUol.getValor(),novaAcao.getNome());/**/
+            // new FetchData().execute(Links.ConsultarAtivo.getValor(),novaAcao.getNome());
+//            new FetchData().execute(Links.ConsultarAtivoHgBrasil.getValor(),novaAcao.getNome());\
+            new FetchData().execute(Links.ConsultarAtivoYahoo.getValor(),novaAcao.getNome());
 
             acoes.add(novaAcao);
 
@@ -211,6 +217,10 @@ public class MainActivity extends Activity implements Download_data.download_com
                     link = (acao+params[1]);
                 }else if (Links.ConsultarAtivoUol.getValor().equals(acao)){
                     link = (acao+params[1]+".SA");
+                }else if (Links.ConsultarAtivoHgBrasil.getValor().equals(acao)) {
+                    link = (acao + params[1]);
+                }else if (Links.ConsultarAtivoYahoo.getValor().equals(acao)){
+                    link = (acao+params[1]+".SA&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance");
                 }
 
                 Log.i("link", link);
@@ -241,6 +251,8 @@ public class MainActivity extends Activity implements Download_data.download_com
                     // But it does make debugging a *lot* easier if you print out the completed
                     // buffer for debugging.
                     buffer.append(line + "\n");
+                    //Log.i("line-> ", line );
+
                 }
 
                 if (buffer.length() == 0) {
@@ -271,15 +283,26 @@ public class MainActivity extends Activity implements Download_data.download_com
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Log.i("json", s);
-            if(Links.ListarAtivos.getValor().equals(acao)){
-                get_data(s);
-            }else if (Links.ConsultarAtivo.getValor().equals(acao)){
-                atualizaAtivo(s);
-            }else if (Links.ConsultarAtivoUol.getValor().equals(acao)){
-                atualizaAtivoUol(s);
+            if (s != null ) {
+                Log.i("json", s);
+                if (Links.ListarAtivos.getValor().equals(acao)) {
+                    get_data(s);
+                } else if (Links.ConsultarAtivo.getValor().equals(acao)) {
+                    atualizaAtivo(s);
+                } else if (Links.ConsultarAtivoUol.getValor().equals(acao)) {
+                    atualizaAtivoUol(s);
+                } else if (Links.ConsultarAtivoHgBrasil.getValor().equals(acao)) {
+                    atualizaAtivoHgBrasil(s);
+                } else if (Links.ConsultarAtivoYahoo.getValor().equals(acao)) {
+                    atualizaAtivoYahoo(s);
+                }
+            }else{
+                quantidadeResolvida++;
+                if (quantidadeRequisicao == quantidadeResolvida) {
+                    grafico();
+                    adapter.notifyDataSetChanged();
+                }
             }
-
         }
     }
 
@@ -298,23 +321,9 @@ public class MainActivity extends Activity implements Download_data.download_com
             e.printStackTrace();
         }
 //        Log.i("acao",nomeAcao + ": " + valorAtual.toString() + " - " + valorDiferenca.toString());
-        for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext();) {
-            Acao acao = (Acao) iterator.next();
-            if(nomeAcao.equals(acao.getNome())){
-                Acao temp = new Acao(nomeAcao , acao.getQuantidade(), acao.getValor(), valorAtual , valorAtual.subtract(valorDiferenca) );
-                acao.setValorAbertura(temp.getValorAbertura());
-                acao.setValorAtual(temp.getValorAtual());
-                acao.setPercentualDia(temp.getPercentualDia());
-                acao.setPercentualTotal(temp.getPercentualTotal());
-//                Log.i("acaoPos", acao.toString());
-            }
-        }
-
-        if(quantidadeRequisicao == quantidadeResolvida){
-            grafico();
-            adapter.notifyDataSetChanged();
-        }
+        atualizaGrafico(valorDiferenca, valorAtual, nomeAcao);
     }
+
     private void atualizaAtivoUol(String jsonData) {
         quantidadeResolvida++;
 
@@ -331,10 +340,62 @@ public class MainActivity extends Activity implements Download_data.download_com
         }
         Log.i("jsonData", jsonData);
 //        Log.i("acao",nomeAcao + ": " + valorAtual.toString() + " - " + valorDiferenca.toString());
-        for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext();) {
+        atualizaGrafico(valorDiferenca, valorAtual, nomeAcao);
+    }
+
+    private void atualizaAtivoHgBrasil(String jsonData) {
+        quantidadeResolvida++;
+
+        JSONObject obj = null, json = null;
+        BigDecimal valorDiferenca = BigDecimal.ZERO, percentual = BigDecimal.ZERO , valorAtual = BigDecimal.ZERO;
+        String nomeAcao = "";
+        try {
+            json=new JSONObject(jsonData);
+
+            nomeAcao = (json.getJSONObject("results")).names().getString(0);
+            obj =(json.getJSONObject("results")).getJSONObject(nomeAcao);
+
+            percentual = new BigDecimal(obj.getString("change_percent"));
+            valorAtual = new BigDecimal(obj.getString("price"));
+            valorDiferenca =  valorAtual.multiply(percentual.divide(new BigDecimal(100)));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.i("jsonData", jsonData);
+        Log.i("jsonData", obj.toString());
+//        Log.i("acao",nomeAcao + ": " + valorAtual.toString() + " - " + valorDiferenca.toString());
+        atualizaGrafico(valorDiferenca, valorAtual, nomeAcao);
+    }
+
+
+    private void atualizaAtivoYahoo(String jsonData) {
+        quantidadeResolvida++;
+
+        JSONObject obj = null, json = null;
+        BigDecimal valorDiferenca = BigDecimal.ZERO, percentual = BigDecimal.ZERO , valorAtual = BigDecimal.ZERO;
+        String nomeAcao = "";
+        try {
+            obj=(new JSONObject(jsonData)).getJSONObject("spark").getJSONArray("result").getJSONObject(0).getJSONArray("response").getJSONObject(0).getJSONObject("meta");
+           // Log.i("obj -> ", obj.toString());
+            nomeAcao = (obj.getString("symbol")).split("\\.")[0];
+            valorAtual = new BigDecimal(obj.getString("regularMarketPrice"));
+            valorDiferenca =  valorAtual.subtract(new BigDecimal(obj.getString("previousClose")));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+       // Log.i("jsonData", jsonData);
+
+//        Log.i("acao",nomeAcao + ": " + valorAtual.toString() + " - " + valorDiferenca.toString());
+        atualizaGrafico(valorDiferenca, valorAtual, nomeAcao);
+    }
+
+    private void atualizaGrafico(BigDecimal valorDiferenca, BigDecimal valorAtual, String nomeAcao) {
+        for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext(); ) {
             Acao acao = (Acao) iterator.next();
-            if(nomeAcao.equals(acao.getNome())){
-                Acao temp = new Acao(nomeAcao , acao.getQuantidade(), acao.getValor(), valorAtual , valorAtual.subtract(valorDiferenca) );
+            if (nomeAcao.equals(acao.getNome())) {
+                Acao temp = new Acao(nomeAcao, acao.getQuantidade(), acao.getValor(), valorAtual, valorAtual.subtract(valorDiferenca));
                 acao.setValorAbertura(temp.getValorAbertura());
                 acao.setValorAtual(temp.getValorAtual());
                 acao.setPercentualDia(temp.getPercentualDia());
@@ -343,7 +404,7 @@ public class MainActivity extends Activity implements Download_data.download_com
             }
         }
 
-        if(quantidadeRequisicao == quantidadeResolvida){
+        if (quantidadeRequisicao == quantidadeResolvida) {
             grafico();
             adapter.notifyDataSetChanged();
         }
@@ -353,7 +414,10 @@ public class MainActivity extends Activity implements Download_data.download_com
 //        ListarAtivos("http://invest-182620.appspot.com/rest/investimentoResource/listarAcoesConsolidada"),
         ListarAtivos("https://api.mlab.com/api/1/databases/invest/collections/acoes?apiKey=Wtax8CjOW6j5Bo5kBVTirXR4a4qxLDFh&s={\"nome\":%201,%20\"data\":%201}"),
         ConsultarAtivoUol("http://cotacoes.economia.uol.com.br/snapQuote.html?code="),
-        ConsultarAtivo("https://finance.google.com/finance?output=json&q=BVMF:");
+        ConsultarAtivo("https://finance.google.com/finance?output=json&q=BVMF:"),
+        ConsultarAtivoHgBrasil("https://api.hgbrasil.com/finance/stock_price?key=9e75094e&symbol="),
+        ConsultarAtivoYahoo("https://query1.finance.yahoo.com/v7/finance/spark?symbols=")
+        ;
 
         private final String valor;
         Links(String valorOpcao){
