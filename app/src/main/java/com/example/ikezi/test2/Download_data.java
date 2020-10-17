@@ -19,7 +19,7 @@ public class Download_data implements Runnable  {
 
     public interface download_complete
     {
-        public void get_data(String data);
+        void get_data(String data);
     }
 
     Download_data(download_complete caller) {

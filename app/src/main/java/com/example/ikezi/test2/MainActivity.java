@@ -57,7 +57,7 @@ public class MainActivity extends Activity implements Download_data.download_com
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        list = (ListView) findViewById(R.id.list);
+        list = findViewById(R.id.list);
         adapter = new ListAdapter(this);
         list.setAdapter(adapter);
 
@@ -69,7 +69,7 @@ public class MainActivity extends Activity implements Download_data.download_com
     }
 
     public void grafico(){
-        pieChart = (PieChart) findViewById(R.id.chart1);
+        pieChart = findViewById(R.id.chart1);
         entries = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
         for (Acao acao: acoes){
@@ -159,7 +159,7 @@ public class MainActivity extends Activity implements Download_data.download_com
     private void adicionaAcao(Acao novaAcao) {
         boolean flag = false;
         for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext();) {
-            Acao acao = (Acao) iterator.next();
+            Acao acao = iterator.next();
             if(novaAcao.getNome().equals(acao.getNome())){
                 flag = true;
                 if (acao.getQuantidade() + novaAcao.getQuantidade() == 0){
@@ -196,7 +196,7 @@ public class MainActivity extends Activity implements Download_data.download_com
 
     private class FetchData extends AsyncTask<String, Void, String> {
 
-        private String acao = new String();
+        private String acao = "";
         @Override
         protected String doInBackground(String... params) {
             acao = params[0];
@@ -393,7 +393,7 @@ public class MainActivity extends Activity implements Download_data.download_com
 
     private void atualizaGrafico(BigDecimal valorDiferenca, BigDecimal valorAtual, String nomeAcao) {
         for (Iterator<Acao> iterator = acoes.iterator(); iterator.hasNext(); ) {
-            Acao acao = (Acao) iterator.next();
+            Acao acao = iterator.next();
             if (nomeAcao.equals(acao.getNome())) {
                 Acao temp = new Acao(nomeAcao, acao.getQuantidade(), acao.getValor(), valorAtual, valorAtual.subtract(valorDiferenca));
                 acao.setValorAbertura(temp.getValorAbertura());
@@ -410,7 +410,7 @@ public class MainActivity extends Activity implements Download_data.download_com
         }
     }
 
-    private static enum Links {
+    private enum Links {
 //        ListarAtivos("http://invest-182620.appspot.com/rest/investimentoResource/listarAcoesConsolidada"),
         ListarAtivos("https://api.mlab.com/api/1/databases/invest/collections/acoes?apiKey=Wtax8CjOW6j5Bo5kBVTirXR4a4qxLDFh&s={\"nome\":%201,%20\"data\":%201}"),
         ConsultarAtivoUol("http://cotacoes.economia.uol.com.br/snapQuote.html?code="),

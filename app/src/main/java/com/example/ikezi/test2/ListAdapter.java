@@ -62,13 +62,13 @@ public class ListAdapter extends BaseAdapter {
             LayoutInflater inflater = (LayoutInflater) main.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.cell, null);
 
-            holder.nome = (TextView) convertView.findViewById(R.id.nome);
-            holder.quantidade = (TextView) convertView.findViewById(R.id.quantidade);
-            holder.valor = (TextView) convertView.findViewById(R.id.valor);
-            holder.valorTotal = (TextView) convertView.findViewById(R.id.valorTotal);
-            holder.valorAtual = (TextView) convertView.findViewById(R.id.valorAtual);
-            holder.percentualDia = (TextView) convertView.findViewById(R.id.percentualDia);
-            holder.percentualTotal = (TextView) convertView.findViewById(R.id.percentualTotal);
+            holder.nome = convertView.findViewById(R.id.nome);
+            holder.quantidade = convertView.findViewById(R.id.quantidade);
+            holder.valor = convertView.findViewById(R.id.valor);
+            holder.valorTotal = convertView.findViewById(R.id.valorTotal);
+            holder.valorAtual = convertView.findViewById(R.id.valorAtual);
+            holder.percentualDia = convertView.findViewById(R.id.percentualDia);
+            holder.percentualTotal = convertView.findViewById(R.id.percentualTotal);
 
             convertView.setTag(holder);
         }
